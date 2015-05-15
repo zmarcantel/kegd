@@ -1,0 +1,14 @@
+{
+  "name": "kegbot",
+  "version": "0.0.1",
+  "description": "Server for the Kegbot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Zach Marcantel <zmarcantel@gmail.com>",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "express": "~4.12.3"
+  }
+}
