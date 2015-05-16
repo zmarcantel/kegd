@@ -1,3 +1,6 @@
+var   db = require('../lib/db')
+    , models = require('../lib/models');
+
 /**
  * @api {post} /beer Add a new beer
  * @apiName AddBeer
@@ -18,7 +21,21 @@
  * @apiError (Errors) {String} error The error string
  */
 function add(req, res) {
-    res.json({});
+    var beer = models.nohm.factory('Beer');
+    beer.p(req.body);
+    beer.save(function(err) {
+        if (err) {
+            if (err === 'invalid') {
+                res.status(400).json({error: models.format_invalid(err)});
+            } else {
+                res.status(500).json({error: err});
+            }
+            return;
+        }
+
+        db.incr('num_beers');
+        res.status(200).json(beer.allProperties());
+    });
 };
 
 
@@ -30,7 +47,26 @@ function add(req, res) {
  * @apiError (Errors) {String} error The error string
  */
 function remove(req, res) {
-    res.json({});
+    if (typeof req.params.id !== 'string') {
+        res.status(400).json({ error: 'non-string beer id detected' });
+        return;
+    }
+
+    var beer = models.nohm.factory('Beer', req.params.id, function(err) {
+        beer.remove(function(err) {
+            if (err) {
+                if (err === 'invalid') {
+                    res.status(400).json({error: models.format_invalid(err)});
+                } else {
+                    res.status(500).json({error: err});
+                }
+                return;
+            }
+
+            db.decr('num_beers');
+            res.status(200).json({});
+        });
+    });
 };
 
 

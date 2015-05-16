@@ -20,7 +20,7 @@ function singles() {
         before(function(done) {
             request(app)
                 .post('/beer')
-                .send({})
+                .send({ name: "test beer" })
                 .end(function(e, r) {
                     res = r;
                     err = e;

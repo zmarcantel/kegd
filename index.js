@@ -1,5 +1,6 @@
 var   express = require('express')
     , exphbs  = require('express-handlebars')
+    , bodyParser = require('body-parser')
     , fs = require('fs');
 
 var   db = require('./lib/db');
@@ -22,6 +23,12 @@ var have_docs = fs.existsSync('./docs');
 app.engine('hbs', exphbs({defaultLayout: 'main', extname: 'hbs'}));
 app.set('view engine', 'hbs');
 
+
+//
+// middleware
+//
+
+app.use(bodyParser.json())
 
 //
 // route registration
