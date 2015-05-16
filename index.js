@@ -1,5 +1,6 @@
 var   express = require('express')
-    , exphbs  = require('express-handlebars');
+    , exphbs  = require('express-handlebars')
+    , fs = require('fs');
 
 var   keg = require("./routes/kegs")
     , beer = require("./routes/beers");
@@ -9,6 +10,8 @@ var   keg = require("./routes/kegs")
 //
 
 var app = express();
+
+var have_docs = fs.existsSync('./docs');
 
 //
 // layouts
@@ -21,6 +24,17 @@ app.set('view engine', 'hbs');
 //
 // route registration
 //
+
+// docs
+if (have_docs) {
+    console.log('Serving documentation at /docs');
+    app.use('/docs', express.static(__dirname + '/docs', {
+        dotfiles: 'ignore',
+        etag: false,
+        index: 'index.html'
+    }));
+}
+
 
 // index
 app.get('/', function (req, res) {
