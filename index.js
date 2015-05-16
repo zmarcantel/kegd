@@ -2,6 +2,8 @@ var   express = require('express')
     , exphbs  = require('express-handlebars')
     , fs = require('fs');
 
+var   db = require('./lib/db');
+
 var   keg = require("./routes/kegs")
     , beer = require("./routes/beers");
 
@@ -35,7 +37,6 @@ if (have_docs) {
     }));
 }
 
-
 // index
 app.get('/', function (req, res) {
     res.render('index');
@@ -58,6 +59,9 @@ app.route('/beer/:id')
     .get(beer.detail)
     .delete(beer.remove)
     .patch(beer.modify);
+
+console.log('Number of beers:', db.num_beers());
+console.log('Number of kegs:', db.num_kegs());
 
 
 //
