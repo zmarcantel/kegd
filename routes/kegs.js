@@ -41,7 +41,6 @@ function remove(req, res) {
  * @apiParam {Number} [tap Change the tap number the keg is attached to
  * @apiParam {Number} [beer] Change the ID of the beer in the keg
  * @apiParam {Object} [beer] Change the beer object in the keg. Creates if not exist.
- * @apiParam {Number} [tap] Change the tap index the keg is attached to
  * @apiParam {Number} [tap_date] Change the Unix (UTC) timestamp of when the keg was first tapped
  * @apiParam {Number} [start_volume] Change the starting volume of the keg
  * @apiParam {Number} [current_volume] Set the current estimated volume

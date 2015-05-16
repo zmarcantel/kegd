@@ -8,6 +8,7 @@
  * @apiParam {String} [style] Style of the beer
  * @apiParam {String} [country] Country of origin of the beer
  * @apiParam {Number} [abv] Alcohol by volume
+ * @apiParam {Number} [ibu] IIBU of the beer
  * @apiParam {Number} [original_gravity] Original gravity of the beer
  * @apiParam {Number} [final_gravity] Final gravity of the beer
  * @apiParam {String} [description] Description of the beer
@@ -38,11 +39,15 @@ function remove(req, res) {
  * @apiName ModifyBeer
  * @apiGroup Beer
  *
+ * Because the 'name' field is the indexed unique key, any renames
+ * (where name is given in PATCH json) will be a fetch, modify, save, delete-old.
+ *
  * @apiParam {String} [name] Name of the beer
  * @apiParam {String} [brewery] Brewer of the beer
  * @apiParam {String} [style] Style of the beer
  * @apiParam {String} [country] Country of origin of the beer
  * @apiParam {Number} [abv] Alcohol by volume
+ * @apiParam {Number} [ibu] IBUE of the beer
  * @apiParam {Number} [original_gravity] Original gravity of the beer
  * @apiParam {Number} [final_gravity] Final gravity of the beer
  * @apiParam {String} [description] Description of the beer
@@ -52,6 +57,7 @@ function remove(req, res) {
  * @apiSuccess (Echo On Success If Given) {String} [style] Style of the beer
  * @apiSuccess (Echo On Success If Given) {String} [country] Country of origin of the beer
  * @apiSuccess (Echo On Success If Given) {Number} [abv] Alcohol by volume
+ * @apiSuccess (Echo On Success If Given) {Number} [ibu] IBU of the beer
  * @apiSuccess (Echo On Success If Given) {Number} [original_gravity] Original gravity of the beer
  * @apiSuccess (Echo On Success If Given) {Number} [final_gravity] Final gravity of the beer
  * @apiSuccess (Echo On Success If Given) {String} [description] Description of the beer
@@ -87,6 +93,7 @@ function list(req, res) {
  * @apiSuccess (Success) {String} style Style of the beer
  * @apiSuccess (Success) {String} country Country of origin of the beer
  * @apiSuccess (Success) {Number} abv Alcohol by volume
+ * @apiSuccess (Success) {Number} ibu IBU of the beer
  * @apiSuccess (Success) {Number} original_gravity Original gravity of the beer
  * @apiSuccess (Success) {Number} final_gravity Final gravity of the beer
  * @apiSuccess (Success) {String} description Description of the beer

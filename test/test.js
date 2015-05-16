@@ -2,7 +2,7 @@ var   should = require("should")
     , request = require("supertest")
     , util = require('./lib');
 
-var app = require('../');
+var   app = require('../');
 
 //
 // beer tests
@@ -41,5 +41,17 @@ describe('Beers', function() {
         describe('positive', beer_tests.positive.list);
         describe('negative', beer_tests.negative.list);
     });
+
+});
+
+//
+// database model tests
+//
+
+describe('Models', function() {
+    var model_tests = require('./models');
+
+    describe('Beer', model_tests.beer);
+    describe('Keg', model_tests.keg);
 
 });
