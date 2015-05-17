@@ -137,7 +137,19 @@ function list(req, res) {
  * @apiError (Errors) {String} error The error string
  */
 function detail(req, res) {
-    res.json({});
+    if (typeof req.params.id !== 'string') {
+        res.status(400).json({ error: 'non-string beer id detected' });
+        return;
+    }
+
+    models.nohm.factory('Beer', req.params.id, function(err, properties) {
+        if (err) {
+            res.status(500).json({ error: err });
+            return;
+        }
+
+        res.status(200).json(properties);
+    });
 };
 
 exports.add = add;

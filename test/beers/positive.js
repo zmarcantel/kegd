@@ -9,6 +9,19 @@ var app;
 
 function singles() {
 
+    var TEST_BEER_BASE = {
+        name: 'test beer',
+        brewery: 'test brewery',
+        style: 'IPA',
+        country: 'USA',
+        abv: 5.8,
+        original_gravity: 1.070,
+        final_gravity: 1.012,
+        ibu: 85,
+        description: 'Sweet and bitter!'
+    };
+
+
     // beer id to use for the single beer tests
     // populated on first test (create)
     var beer_id;
@@ -20,7 +33,7 @@ function singles() {
         before(function(done) {
             request(app)
                 .post('/beer')
-                .send({ name: "test beer" })
+                .send(TEST_BEER_BASE)
                 .end(function(e, r) {
                     res = r;
                     err = e;
@@ -77,6 +90,12 @@ function singles() {
             if (err) { throw err; };
             util.is_sane(res);
         });
+
+        for (key in TEST_BEER_BASE) {
+            it('should have matching '+key, function() {
+                res.body[key].should.equal(TEST_BEER_BASE[key]);
+            });
+        };
     });
 
 
