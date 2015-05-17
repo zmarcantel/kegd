@@ -1,5 +1,7 @@
 var   request = require("supertest")
-    , util = require('../lib');
+    , util = require('../lib')
+    , db = require('../../lib/db')
+    , should = require('should');
 
 var app;
 
@@ -46,6 +48,14 @@ function singles() {
             util.is_sane(res);
 
             beer_id = res.body.id;
+        });
+
+        it('should increase num_beers', function(done) {
+            db.num_beers(function(err, count) {
+                should.not.exist(err);
+                count.should.equal(1);
+                done();
+            });
         });
     });
 
@@ -116,6 +126,14 @@ function singles() {
         it('is sane', function() {
             if (err) { throw err; };
             util.is_sane(res);
+        });
+
+        it('should decrease num_beers', function(done) {
+            db.num_beers(function(err, count) {
+                should.not.exist(err);
+                count.should.equal(0);
+                done();
+            });
         });
     });
 

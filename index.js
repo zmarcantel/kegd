@@ -67,8 +67,10 @@ app.route('/beer/:id')
     .delete(beer.remove)
     .patch(beer.modify);
 
-console.log('Number of beers:', db.num_beers());
-console.log('Number of kegs:', db.num_kegs());
+// omit error in callback, apply remaining (and cb) args to console.log
+db.num_beers(false, console.log, "Number of beers:");
+db.num_kegs(false, console.log, "Number of kegs:");
+
 
 
 //
