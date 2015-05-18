@@ -52,8 +52,8 @@ module.exports = function() {
     
     describe('fetch and modify', function() {
     
-        it('should fetch existing beer using get_slug()', function(done) {
-            var fetched = nohm.factory('Beer', beer.get_slug(), function (err) {
+        it('should fetch existing beer using id', function(done) {
+            var fetched = nohm.factory('Beer', beer.id, function (err) {
                 if (err) {
                     err.should.not.equal('not found');
                     should.not.exist(err);
@@ -69,7 +69,7 @@ module.exports = function() {
         });
     
         it('should reflect changes after modification', function(done) {
-            var testing = nohm.factory('Beer', beer.get_slug(), function (err) {
+            var testing = nohm.factory('Beer', beer.id, function (err) {
                 if (err) {
                     err.should.not.equal('not found');
                     should.not.exist(err);
@@ -85,7 +85,7 @@ module.exports = function() {
                         should.not.exist(err);
                     }
     
-                    var fetched = nohm.factory('Beer', testing.get_slug(), function (err, got) {
+                    var fetched = nohm.factory('Beer', testing.id, function (err, got) {
                         if (err) {
                             console.log(fetched.errors);
                             should.not.exist(err);

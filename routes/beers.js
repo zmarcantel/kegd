@@ -101,7 +101,30 @@ function remove(req, res) {
  * @apiError (Errors) {String} error The error string
  */
 function modify(req, res) {
-    res.json({});
+    if (typeof req.params.id !== 'string') {
+        res.status(400).json({ error: 'non-string beer id detected' });
+        return;
+    }
+
+    var beer = models.nohm.factory('Beer', req.params.id, function(err, properties) {
+        if (err) {
+            res.status(500).json({ error: err });
+            return;
+        }
+
+        for (key in req.body) {
+            properties[key] = req.body[key];
+        }
+
+        beer.p(req.body)
+        beer.save(function(err) {
+            if (err) {
+                res.status(500).json({ error: err });
+                return;
+            }
+            res.status(200).json(req.body);
+        });
+    });
 };
 
 
@@ -115,7 +138,14 @@ function modify(req, res) {
  * @apiError (Errors) {String} error The error string
  */
 function list(req, res) {
-    res.json({});
+    models.Beer.findAndLoad({}, function (err, beers) {
+        if (err) {
+            res.status(500).json({ error: err });
+            return;
+        }
+
+        res.status(200).json({beers: beers});
+    });
 };
 
 
@@ -148,6 +178,7 @@ function detail(req, res) {
             return;
         }
 
+        properties['id'] = req.params.id;
         res.status(200).json(properties);
     });
 };

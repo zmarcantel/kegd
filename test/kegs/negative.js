@@ -1,5 +1,5 @@
 var   request = require("supertest")
-    , util = require('../lib');
+    , util // depends on app, inited in exports function
 
 var app;
 
@@ -17,6 +17,7 @@ function list() {
 
 module.exports = function(exp_app) {
     app = exp_app;
+    util = require('../lib')(app);
     return {
         singles: singles,
         list: list
