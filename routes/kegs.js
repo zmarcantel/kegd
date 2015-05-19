@@ -16,8 +16,6 @@ var   models = require('../lib/models')
  * @apiError (Errors) {String} error The error string
  */
 function add(req, res) {
-    var keg = models.nohm.factory('Keg');
-
     models.NewKeg(req.body, function(err, keg) {
         if (err) {
             if (err === 'invalid') {

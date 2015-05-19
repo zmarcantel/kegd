@@ -21,9 +21,7 @@ var   db = require('../lib/db')
  * @apiError (Errors) {String} error The error string
  */
 function add(req, res) {
-    var beer = models.nohm.factory('Beer');
-    beer.p(req.body);
-    beer.save(function(err) {
+    models.NewBeer(req.body, function(err, beer) {
         if (err) {
             if (err === 'invalid') {
                 res.status(400).json({error: models.format_invalid(err)});
@@ -35,6 +33,7 @@ function add(req, res) {
 
         db.incr('num_beers');
         res.status(200).json(beer.allProperties());
+
     });
 };
 
