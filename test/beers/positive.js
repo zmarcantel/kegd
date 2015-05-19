@@ -129,47 +129,49 @@ function singles() {
         describe('with fields', function() {
             describe('individually', function() {
                 var props = (new models.Beer).properties;
-                for (key in props) {
-                    if (key === 'name') continue;
+                for (k in props) {
+                    if (k === 'name') continue;
 
-                    it('should modify and echo '+key, function(done) {
-                        var obj = {};
-                        var expected;
+                    (function(key) {
+                        it('should modify and echo '+key, function(done) {
+                            var obj = {};
+                            var expected;
 
-                        switch (props[key].type) {
-                        case 'string':
-                            expected = 'some new string';
-                            obj[key] = expected;
-                            break;
+                            switch (props[key].type) {
+                            case 'string':
+                                expected = 'some new string';
+                                obj[key] = expected;
+                                break;
 
-                        case 'integer':
-                            expected = Math.rand(10);
-                            obj[key] = expected;
-                            break;
+                            case 'integer':
+                                expected = Math.floor(Math.random(10));
+                                obj[key] = expected;
+                                break;
 
-                        case 'float':
-                            expected = Math.randFloat(10.0);
-                            obj[key] = expected;
-                            break;
+                            case 'float':
+                                expected = Math.random(10.0);
+                                obj[key] = expected;
+                                break;
 
-                        default:
-                            throw 'hunhandled case: '+key;
-                        }
+                            default:
+                                throw 'hunhandled case: '+key;
+                            }
 
-                        
-                        request(app)
-                            .patch('/beer/'+beer_id)
-                            .send(obj)
-                            .end(function(e, r) {
-                                util.is_sane(r);
-                                should.not.exist(e);
-                                should.exist(r);
-                                Object.keys(r.body).length.should.equal(1);
-                                should.exist(r.body[key]);
-                                r.body[key].should.equal(expected);
-                                done();
-                            });
-                    });
+                            
+                            request(app)
+                                .patch('/beer/'+beer_id)
+                                .send(obj)
+                                .end(function(e, r) {
+                                    util.is_sane(r);
+                                    should.not.exist(e);
+                                    should.exist(r);
+                                    Object.keys(r.body).length.should.equal(1);
+                                    should.exist(r.body[key]);
+                                    r.body[key].should.equal(expected);
+                                    done();
+                                });
+                        });
+                    })(k);
                 } // generated field tests
             });
        });
@@ -233,6 +235,16 @@ function singles() {
                 count.should.equal(0);
                 done();
             });
+        });
+
+        it('is no longer fetchable', function(done) {
+            request(app)
+                .get('/beer/'+beer_id)
+                .end(function(e, r) {
+                    should.exist(r.body.error);
+                    r.body.error.should.equal('not found');
+                    done();
+                });
         });
     });
 

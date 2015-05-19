@@ -53,13 +53,49 @@ function brew_cleanup(id) {
 
 
 
+function buy_keg(obj, cb) {
+    request(app)
+        .post('/keg')
+        .send(obj)
+        .end(function(err, res) {
+            cb(err, res);
+        });
+}
+function buy_keg_wrap(obj) {
+    return function(cb) {
+        buy_keg(obj, cb);
+    }
+}
+function sell_keg(id, cb) {
+    request(app)
+        .delete('/keg/'+id)
+        .end(function(err, res) {
+            cb(err, res);
+        });
+}
+function sell_keg_wrap(id) {
+    return function(cb) {
+        sell_keg(id, cb);
+    }
+}
+
+
+
 module.exports = function(exp_app) {
     app = exp_app;
     return {
           is_sane: is_sane
+
+        // beer generation and cleanup
         , brew: brew
         , brew_wrap: brew_wrap
         , clean_brew: clean_brew
         , brew_cleanup: brew_cleanup
+
+        // keg generation and cleanup
+        , buy_keg: buy_keg
+        , buy_keg_wrap: buy_keg_wrap
+        , sell_keg: sell_keg
+        , sell_keg_wrap: sell_keg_wrap
     };
 };

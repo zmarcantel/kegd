@@ -6,7 +6,7 @@ var models = require('../../lib/models');
 
 var TEST_KEG_BASE = {
     tap: 3,
-    beer: 'some-beer-slug',
+    beer: 10,
     tap_date: Math.floor((new Date).getTime() / 1000),
     start_volume: 4.7,
     current_volume: 4.2,
@@ -38,17 +38,6 @@ module.exports = function() {
     });
     
     
-    describe('id generations', function() {
-    
-        it('should have a hyphenated slug', function() {
-            keg.p('tap').should.equal(TEST_KEG_BASE['tap']);
-            keg.id.should.equal(TEST_KEG_BASE['tap']);
-        });
-    
-    });
-    
-    
-    
     describe('fetch and modify', function() {
     
         it('should fetch existing keg using tap number', function(done) {
@@ -75,7 +64,7 @@ module.exports = function() {
                 }
 
                 var tap_date = Math.floor((new Date).getTime() / 1000);
-                testing.p('beer', 'test-beer');
+                testing.p('beer', 4);
                 testing.p('tap_date', tap_date);
                 testing.p('current_volume', 3.5);
     
@@ -95,7 +84,7 @@ module.exports = function() {
                         fetched.p('tap').should.equal(testing.id); // taps == id
     
     
-                        got['beer'].should.equal('test-beer');
+                        got['beer'].should.equal(4);
                         got['tap_date'].should.equal(tap_date);
                         got['current_volume'].should.equal(3.5);
     

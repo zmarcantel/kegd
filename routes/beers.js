@@ -112,10 +112,6 @@ function modify(req, res) {
             return;
         }
 
-        for (key in req.body) {
-            properties[key] = req.body[key];
-        }
-
         beer.p(req.body)
         beer.save(function(err) {
             if (err) {
@@ -172,14 +168,13 @@ function detail(req, res) {
         return;
     }
 
-    models.nohm.factory('Beer', req.params.id, function(err, properties) {
+    var beer = models.nohm.factory('Beer', req.params.id, function(err, properties) {
         if (err) {
             res.status(500).json({ error: err });
             return;
         }
 
-        properties['id'] = req.params.id;
-        res.status(200).json(properties);
+        res.status(200).json(beer.allProperties());
     });
 };
 

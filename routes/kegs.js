@@ -1,3 +1,6 @@
+var   models = require('../lib/models')
+    , db = require('../lib/db');
+
 /**
  * @api {post} /keg Add a new keg
  * @apiName AddKeg
@@ -13,7 +16,22 @@
  * @apiError (Errors) {String} error The error string
  */
 function add(req, res) {
-    res.json({});
+    var keg = models.nohm.factory('Keg');
+
+    models.NewKeg(req.body, function(err, keg) {
+        if (err) {
+            if (err === 'invalid') {
+                res.status(400).json({error: models.format_invalid(err)});
+            } else {
+                res.status(500).json({error: err});
+            }
+            return;
+        }
+
+        db.incr('num_kegs');
+        res.status(200).json(keg.allProperties());
+
+    });
 };
 
 
@@ -29,7 +47,26 @@ function add(req, res) {
  * @apiError (Errors) {String} error The error string
  */
 function remove(req, res) {
-    res.json({});
+    if (typeof req.params.id !== 'string') {
+        res.status(400).json({ error: 'non-string keg id detected' });
+        return;
+    }
+
+    var keg = models.nohm.factory('Keg', req.params.id, function(err) {
+        keg.remove(function(err) {
+            if (err) {
+                if (err === 'invalid') {
+                    res.status(400).json({error: models.format_invalid(err)});
+                } else {
+                    res.status(500).json({error: err});
+                }
+                return;
+            }
+
+            db.decr('num_kegs');
+            res.status(200).json({});
+        });
+    });
 };
 
 
@@ -58,7 +95,26 @@ function remove(req, res) {
  * @apiError (Errors) {String} error The error string
  */
 function modify(req, res) {
-    res.json({});
+    if (typeof req.params.id !== 'string') {
+        res.status(400).json({ error: 'non-string keg id detected' });
+        return;
+    }
+
+    var keg = models.nohm.factory('Keg', req.params.id, function(err, properties) {
+        if (err) {
+            res.status(500).json({ error: err });
+            return;
+        }
+
+        keg.p(req.body)
+        keg.save(function(err) {
+            if (err) {
+                res.status(500).json({ error: err });
+                return;
+            }
+            res.status(200).json(req.body);
+        });
+    });
 };
 
 
@@ -72,7 +128,19 @@ function modify(req, res) {
  * @apiError (Errors) {String} error The error string
  */
 function list(req, res) {
-    res.json({});
+    models.Keg.findAndLoad({}, function (err, kegs) {
+        if (err) {
+            res.status(500).json({ error: err });
+            return;
+        }
+
+        // TODO: make a "view generator" to handle these sort of things
+        for (i in kegs) {
+            kegs[i].id = parseInt(kegs[i].id);
+        }
+
+        res.status(200).json({kegs: kegs});
+    });
 };
 
 
@@ -91,7 +159,19 @@ function list(req, res) {
  * @apiError (Errors) {String} error The error string
  */
 function detail(req, res) {
-    res.json({});
+    if (typeof req.params.id !== 'string') {
+        res.status(400).json({ error: 'non-string keg id detected' });
+        return;
+    }
+
+    var keg = models.nohm.factory('Keg', req.params.id, function(err, properties) {
+        if (err) {
+            res.status(500).json({ error: err });
+            return;
+        }
+
+        res.status(200).json(keg.allProperties());
+    });
 };
 
 exports.add = add;

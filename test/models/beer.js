@@ -40,7 +40,7 @@ module.exports = function() {
     });
     
     
-    describe('id generations', function() {
+    describe('slug generations', function() {
     
         it('should have a hyphenated slug', function() {
             beer.get_slug().should.equal('test-beer');
