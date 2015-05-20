@@ -25,6 +25,21 @@ function singles() {
             });
         });
     });
+
+    describe('keg modification', function() {
+        describe('non-existant beer in keg', function() {
+            it('should give "no such beer" error', function(done) {
+                request(app)
+                    .post('/keg')
+                    .send({tap: 50, beer:100000})
+                    .end(function(err, res) {
+                        should.exist(err);
+                        res.body.error.should.equal('beer (100000) does not exist');
+                        done();
+                    });
+            });
+        });
+    });
 };
 
 function list() {

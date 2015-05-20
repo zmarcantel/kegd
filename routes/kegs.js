@@ -117,18 +117,37 @@ function modify(req, res) {
 
     var keg = models.nohm.factory('Keg', req.params.id, function(err, properties) {
         if (err) {
-            res.status(500).json({ error: err });
+            if (err === 'not found') {
+                res.status(404).json({ error: err });
+            } else {
+                res.status(500).json({ error: err });
+            }
             return;
         }
 
-        keg.p(req.body)
-        keg.save(function(err) {
-            if (err) {
-                res.status(500).json({ error: err });
-                return;
-            }
-            res.status(200).json(req.body);
-        });
+        var finish = function() {
+            keg.p(req.body)
+            keg.save(function(err) {
+                if (err) {
+                    res.status(500).json({ error: err });
+                    return;
+                }
+                res.status(200).json(req.body);
+            });
+        };
+
+        if (req.body.beer !== undefined) {
+            models.nohm.factory('Beer').exists(req.body.beer, function(exists) {
+                if (!exists) {
+                    res.status(400).json({ error: "beer ("+req.body.beer+") does not exist"});
+                    return;
+                }
+
+                finish();
+            });
+        } else {
+            finish();
+        }
     });
 };
 

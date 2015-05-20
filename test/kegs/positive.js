@@ -18,6 +18,7 @@ var app;
 var TEST_KEG_BASE = {
     tap: 3,
     beer: 10,
+    capacity: 5.0,
     tap_date: new Date,
     start_volume: Math.random(4.0, 5.0),
     current_volume: Math.random(3.0, 4.0),
@@ -26,53 +27,52 @@ var TEST_KEG_BASE = {
 
 function singles() {
 
+    var setup_res, setup_err;
+
+
     // keg id to use for the single keg tests
     // populated on first test (create)
     var keg_id;
     var beer_id;
 
-    // create a keg
-    describe('add a keg', function() {
-        var res, err;
+    before(function(done) {
+        models.NewBeer({ name: "put me in a keg!" }, function(b_err, beer) {
+            should.not.exist(b_err);
+            beer_id = beer.id;
 
-        before(function(done) {
-            models.NewBeer({ name: "put me in a keg!" }, function(b_err, beer) {
-                should.not.exist(b_err);
-                beer_id = beer.id;
+            //
+            //  also replace the TEST_KEG_BASE beer id
+            //
+            TEST_KEG_BASE.beer = beer_id;
 
-                //
-                //  also replace the TEST_KEG_BASE beer id
-                //
-                TEST_KEG_BASE.beer = beer_id;
-
-                // make a keg for the test to use
-                request(app)
-                    .post('/keg')
-                    .send(TEST_KEG_BASE)
-                    .end(function(e, r) {
-                        res = r;
-                        err = e;
-                        done();
-                    });
-            });
-        });
-
-        after(function(done) {
-            var beer = models.nohm.factory('Beer', beer_id, function(err) {
-                should.not.exist(err);
-                beer.remove(function(d_err) {
-                    should.not.exist(d_err);
+            // make a keg for the test to use
+            request(app)
+                .post('/keg')
+                .send(TEST_KEG_BASE)
+                .end(function(err, res) {
+                    setup_res = res;
+                    setup_err = err;
                     done();
                 });
+        });
+    });
+
+    after(function(done) {
+        var beer = models.nohm.factory('Beer', beer_id, function(err) {
+            should.not.exist(err);
+            beer.remove(function(d_err) {
+                should.not.exist(d_err);
+                done();
             });
         });
+    });
 
 
+    // create a keg
+    describe('add a keg', function() {
         it('is sane', function() {
-            if (err) { console.log(err); };
-            util.is_sane(res);
-
-            keg_id = res.body.id;
+            util.is_sane(setup_res);
+            keg_id = setup_res.body.id;
         });
 
         it('should increase num_kegs', function(done) {
@@ -88,7 +88,6 @@ function singles() {
     // fetch the keg details
     describe('get details of a keg', function() {
         var res, err;
-
         before(function(done) {
             should.exist(keg_id);
             request(app)
@@ -157,6 +156,7 @@ function singles() {
 
                     case 'integer':
                         expected = Math.floor(Math.random(10));
+                        if (key === 'beer') expected = TEST_KEG_BASE.beer;
                         obj[key] = expected;
                         break;
 
@@ -295,7 +295,6 @@ function list() {
 
         async.parallel(funcs, function(errs, responses) {
             if (errs) {
-                console.log(errs);
                 errs.length.should.equal(0);
             } else { should.not.exist(errs); }
 

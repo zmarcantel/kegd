@@ -7,6 +7,7 @@ var models = require('../../lib/models');
 var TEST_KEG_BASE = {
     tap: 3,
     beer: 10,
+    capacity: 5.0,
     tap_date: Math.floor((new Date).getTime() / 1000),
     start_volume: 4.7,
     current_volume: 4.2,
