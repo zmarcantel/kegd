@@ -29,24 +29,47 @@ function singles() {
     // keg id to use for the single keg tests
     // populated on first test (create)
     var keg_id;
+    var beer_id;
 
     // create a keg
     describe('add a keg', function() {
         var res, err;
 
         before(function(done) {
-            request(app)
-                .post('/keg')
-                .send(TEST_KEG_BASE)
-                .end(function(e, r) {
-                    res = r;
-                    err = e;
-                    done();
-                });
+            models.NewBeer({ name: "put me in a keg!" }, function(b_err, beer) {
+                should.not.exist(b_err);
+                beer_id = beer.id;
+
+                //
+                //  also replace the TEST_KEG_BASE beer id
+                //
+                TEST_KEG_BASE.beer = beer_id;
+
+                // make a keg for the test to use
+                request(app)
+                    .post('/keg')
+                    .send(TEST_KEG_BASE)
+                    .end(function(e, r) {
+                        res = r;
+                        err = e;
+                        done();
+                    });
+            });
         });
 
+        after(function(done) {
+            var beer = models.nohm.factory('Beer', beer_id, function(err) {
+                should.not.exist(err);
+                beer.remove(function(d_err) {
+                    should.not.exist(d_err);
+                    done();
+                });
+            });
+        });
+
+
         it('is sane', function() {
-            if (err) { throw err; };
+            if (err) { console.log(err); };
             util.is_sane(res);
 
             keg_id = res.body.id;
@@ -67,6 +90,7 @@ function singles() {
         var res, err;
 
         before(function(done) {
+            should.exist(keg_id);
             request(app)
                 .get('/keg/'+keg_id)
                 .end(function(e, r) {
@@ -105,6 +129,7 @@ function singles() {
         // reset the beer to the test base after we
         // butcher it
         after(function(done) {
+            should.exist(keg_id);
             request(app)
                 .patch('/keg/'+keg_id)
                 .send(TEST_KEG_BASE)
@@ -120,6 +145,7 @@ function singles() {
 
             (function(key) {
                 it('should modify and echo '+key, function(done) {
+                    should.exist(keg_id);
                     var obj = {};
                     var expected;
 
@@ -172,6 +198,7 @@ function singles() {
         var res, err;
 
         before(function(done) {
+            should.exist(keg_id);
             request(app)
                 .delete('/keg/'+keg_id)
                 .end(function(e, r) {
@@ -195,6 +222,7 @@ function singles() {
         });
 
         it('is no longer fetchable', function(done) {
+            should.exist(keg_id);
             request(app)
                 .get('/keg/'+keg_id)
                 .end(function(e, r) {
@@ -216,32 +244,46 @@ function list() {
 
     var keg_ids = [];
     var num_kegs = 10;
+    var beer_id;
 
     before(function(done) {
-        var funcs = [];
-        for (var i = 0; i < num_kegs; ++i) {
-            var b = {
-                tap: i
-            };
+        // make a test beer to put in all the kegs
+        models.NewBeer({name: "just another beer"}, function(err, beer) {
+            should.not.exist(err);
+            should.exist(beer);
+            beer_id = beer.id;
 
-            funcs.push(util.buy_keg_wrap(b));
-        }
+            var funcs = [];
+            for (var i = 0; i < num_kegs; ++i) {
+                var b = {
+                    tap: i,
+                    beer: beer.id
+                };
 
-        async.series(funcs, function(errs, responses) {
-            if (errs) {
-                console.log(errs);
-                errs.length.should.equal(0);
-            } else { should.not.exist(errs); }
-
-            should.exist(responses);
-            responses.length.should.equal(num_kegs);
-
-            for (k in responses) {
-                should.exist(responses[k].body.id);
-                keg_ids.push(responses[k].body.id);
+                funcs.push(util.buy_keg_wrap(b));
             }
 
-            done();
+            // create the kegs
+            async.series(funcs, function(errs, responses) {
+                if (errs) {
+                    errs.length.should.equal(0);
+                } else { should.not.exist(errs); }
+
+                should.exist(responses);
+                responses.length.should.equal(num_kegs);
+
+                for (k in responses) {
+                    should.exist(responses[k].body.id);
+                    keg_ids.push(responses[k].body.id);
+                }
+
+                var beer = models.nohm.factory('Beer')
+                beer.id = beer_id;
+                beer.remove(function(err) {
+                    should.not.exist(err);
+                    done();
+                });
+            });
         });
     });
 
@@ -303,7 +345,6 @@ function list() {
 
             keg_ids.sort();
             fetched_ids.sort();
-
             for (i in keg_ids) {
                 fetched_ids[i].should.equal(keg_ids[i]);
             }

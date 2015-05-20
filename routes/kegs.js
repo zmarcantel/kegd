@@ -16,19 +16,36 @@ var   models = require('../lib/models')
  * @apiError (Errors) {String} error The error string
  */
 function add(req, res) {
-    models.NewKeg(req.body, function(err, keg) {
-        if (err) {
-            if (err === 'invalid') {
-                res.status(400).json({error: models.format_invalid(err)});
-            } else {
-                res.status(500).json({error: err});
-            }
+    if ( ! req.body) {
+        res.status(400).json({ error: "empty or unreadable body" });
+        return;
+    }
+
+    if (req.body.beer === undefined) {
+        res.status(400).json({ error: "beer id not given" });
+        return;
+    }
+
+    models.nohm.factory('Beer').exists(req.body.beer, function(exists) {
+        if (!exists) {
+            res.status(400).json({ error: "beer ("+req.body.beer+") does not exist"});
             return;
         }
 
-        db.incr('num_kegs');
-        res.status(200).json(keg.allProperties());
+        models.NewKeg(req.body, function(err, keg) {
+            if (err) {
+                if (err === 'invalid') {
+                    res.status(400).json({error: models.format_invalid(err)});
+                } else {
+                    res.status(500).json({error: err});
+                }
+                return;
+            }
 
+            db.incr('num_kegs');
+            res.status(200).json(keg.allProperties());
+
+        });
     });
 };
 

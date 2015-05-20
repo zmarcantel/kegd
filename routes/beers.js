@@ -139,6 +139,11 @@ function list(req, res) {
             return;
         }
 
+        // TODO: create 'view generator'
+        for (i in beers) {
+            if (typeof beers[i].id === 'string') { beers[i].id = parseInt(beers[i].id); }
+        }
+
         res.status(200).json({beers: beers});
     });
 };
@@ -172,6 +177,9 @@ function detail(req, res) {
             res.status(500).json({ error: err });
             return;
         }
+
+        // TODO: create 'view generator'
+        if (typeof beer.id === 'string') { beer.id = parseInt(beer.id); }
 
         res.status(200).json(beer.allProperties());
     });
